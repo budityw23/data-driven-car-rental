@@ -1,0 +1,42 @@
+# Dependencies (will be installed in container)
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Environment files (passed via docker-compose)
+.env
+.env.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+
+# Test files
+coverage/
+*.spec.ts
+*.test.ts
+
+# Documentation
+README.md
+docs/
+
+# Misc
+.prettierrc
+.eslintrc*

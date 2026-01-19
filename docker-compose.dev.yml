@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  db:
+    image: postgres:16-alpine
+    container_name: car_rental_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-car_rental_dev}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-car_rental_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ============================================
+  # Backend API (Development with Hot Reload)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: car_rental_backend_dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT:-3000}
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-car_rental_dev}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production-min-32-chars}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # Mount source code for hot reload
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+    networks:
+      - app-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres_data_dev:
+    name: car_rental_postgres_data_dev
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  app-network:
+    name: car_rental_network_dev
+    driver: bridge

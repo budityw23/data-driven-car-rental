@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install PostgreSQL client for health checks and OpenSSL for Prisma
+RUN apk add --no-cache postgresql-client openssl openssl-dev
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Start development server with hot reload
+# Note: Prisma will be set up in Phase 2
+CMD ["npm", "run", "dev"]
