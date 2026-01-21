@@ -183,4 +183,45 @@ export class BookingRepository implements IBookingRepository {
 
     return overlappingBookings > 0;
   }
+
+  async findConflicting(
+    carId: string,
+    startDate: Date,
+    endDate: Date,
+    excludeBookingId?: string
+  ): Promise<Booking[]> {
+    return this.db.booking.findMany({
+      where: {
+        carId,
+        ...(excludeBookingId && { id: { not: excludeBookingId } }),
+        status: {
+          in: ['PENDING', 'CONFIRMED', 'PICKED_UP'],
+        },
+        OR: [
+          // New booking starts during existing booking
+          {
+            AND: [
+              { startDate: { lte: startDate } },
+              { endDate: { gte: startDate } },
+            ],
+          },
+          // New booking ends during existing booking
+          {
+            AND: [
+              { startDate: { lte: endDate } },
+              { endDate: { gte: endDate } },
+            ],
+          },
+          // New booking completely contains existing booking
+          {
+            AND: [
+              { startDate: { gte: startDate } },
+              { endDate: { lte: endDate } },
+            ],
+          },
+        ],
+      },
+      orderBy: { startDate: 'asc' },
+    });
+  }
 }

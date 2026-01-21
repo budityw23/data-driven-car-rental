@@ -63,6 +63,22 @@ services:
           cpus: '0.5'
           memory: 256M
 
+  # ============================================
+  # Frontend (Production)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: car_rental_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
 # ============================================
 # Volumes
 # ============================================

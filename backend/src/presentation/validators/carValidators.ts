@@ -44,3 +44,11 @@ export const getCarQuerySchema = z.object({
 export const carIdSchema = z.object({
   id: z.string().uuid('Invalid car ID format'),
 });
+
+export const checkAvailabilityQuerySchema = z.object({
+  startDate: z.string().datetime('Invalid start date format').transform((val) => new Date(val)),
+  endDate: z.string().datetime('Invalid end date format').transform((val) => new Date(val)),
+}).refine((data) => data.endDate > data.startDate, {
+  message: 'End date must be after start date',
+  path: ['endDate'],
+});

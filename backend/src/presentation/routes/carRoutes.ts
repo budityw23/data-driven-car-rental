@@ -32,6 +32,89 @@ router.get('/', asyncHandler(CarController.getCars));
 
 /**
  * @swagger
+ * /api/cars/{id}/availability:
+ *   get:
+ *     tags: [Cars]
+ *     summary: Check car availability for specific dates
+ *     description: Check if a car is available for booking within a date range and get conflicting bookings if unavailable
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Car ID
+ *       - in: query
+ *         name: startDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Start date in ISO 8601 format
+ *         example: "2026-01-22T00:00:00.000Z"
+ *       - in: query
+ *         name: endDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: End date in ISO 8601 format
+ *         example: "2026-01-25T00:00:00.000Z"
+ *     responses:
+ *       200:
+ *         description: Availability status with conflicting bookings if unavailable
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     available:
+ *                       type: boolean
+ *                       description: Whether the car is available
+ *                     carId:
+ *                       type: string
+ *                       format: uuid
+ *                     requestedStartDate:
+ *                       type: string
+ *                       format: date-time
+ *                     requestedEndDate:
+ *                       type: string
+ *                       format: date-time
+ *                     conflictingBookings:
+ *                       type: array
+ *                       description: List of bookings that conflict with requested dates
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           startDate:
+ *                             type: string
+ *                             format: date-time
+ *                           endDate:
+ *                             type: string
+ *                             format: date-time
+ *                           status:
+ *                             type: string
+ *       400:
+ *         description: Validation error (invalid dates)
+ *       404:
+ *         description: Car not found
+ */
+router.get(
+  '/:id/availability',
+  validateParams(carIdSchema),
+  asyncHandler(CarController.checkAvailability)
+);
+
+/**
+ * @swagger
  * /api/cars/{id}:
  *   get:
  *     tags: [Cars]
