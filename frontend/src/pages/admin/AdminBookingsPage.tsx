@@ -51,7 +51,10 @@ export const AdminBookingsPage: React.FC = () => {
             {bookings.map((booking: Booking) => (
               <tr key={booking.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="p-4 font-mono text-xs">{booking.id.slice(0, 8)}...</td>
-                <td className="p-4 text-sm">{booking.userId /* In real app, join user name */}</td>
+                <td className="p-4 text-sm">
+                  <div className="font-medium">{booking.user?.name || 'Unknown User'}</div>
+                  <div className="text-xs text-muted">{booking.user?.email || booking.userId}</div>
+                </td>
                 <td className="p-4 text-sm">
                   {booking.car ? `${booking.car.brand} ${booking.car.model}` : 'Unknown Car'}
                 </td>

@@ -1,4 +1,5 @@
 import type { Car } from './car';
+import type { User } from './auth';
 
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'PICKED_UP' | 'RETURNED' | 'CANCELLED';
 
@@ -16,6 +17,7 @@ export interface Booking {
   createdAt: string;
   updatedAt: string;
   car?: Car; // Joined car details
+  user?: User; // Joined user details
 }
 
 export interface CreateBookingInput {
